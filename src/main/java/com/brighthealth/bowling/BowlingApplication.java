@@ -12,7 +12,7 @@ public class BowlingApplication {
 		//SpringApplication.run(BowlingApplication.class, args);
 		System.out.println("Hello Brighthealth!");
 		
-		Player player = getPlayerTest4();
+		Player player = getPlayerTest3();
 		
 		startPlay(player);
 		
@@ -38,106 +38,34 @@ public class BowlingApplication {
 			FrameNumber secondLastToPreviousFrameNumber = currentFrameIndex <= 3 ? null : FrameNumber.getFrameNumber(currentFrameIndex - 3);
 			Frame secondLastToPreviousFrame = secondLastToPreviousFrameNumber == null ? null : currentPlayer.getFrame(secondLastToPreviousFrameNumber);
 			
-			// if roll1 is not a strike, check previous frame's second roll and
-			// if it's a spare, set last frame's score.
-			if (roll1 != Roll.STRIKE) {
-				if (previousFrame != null) {
-					// if roll1 is not a strike, check previous frame's second roll and
-					// if it's a spare, set last frame's score.					
-					if (previousFrame.getRoll2() == Roll.SPARE) {
-						if (lastToPreviousFrame != null) {
-							previousFrame.setScore(lastToPreviousFrame.getScore() + 10 + roll1.getScore());
-						} else {
-							previousFrame.setScore(10 + roll1.getScore());
-						}
-					// if roll1 is not a strike, and previous frame's first roll is a strike,
-					// and last to previous frame's first roll is also a strike then 
-					// update last to previous frame's score.
-					} else if (previousFrame.getRoll1()  == Roll.STRIKE) {
-						if (lastToPreviousFrame != null && lastToPreviousFrame.getRoll1() == Roll.STRIKE) {
-							if (secondLastToPreviousFrame != null) {
-								lastToPreviousFrame.setScore(secondLastToPreviousFrame.getScore() + 20 + roll1.getScore()); 
-							} else {
-								lastToPreviousFrame.setScore(20 + roll1.getScore());
-							}
-						}
-					}
-					previousFrame.setScoreFinal(true);
-				}
-			}
+			whenRollOneIsNotStrike(roll1, 
+					previousFrame, 
+					lastToPreviousFrame, 
+					secondLastToPreviousFrame);
 			
-			if (roll1 == Roll.STRIKE) {
-				if (previousFrame != null) {
-					// if first roll is a strike, and previous frame's second roll was a spare
-					// update previous frame's score.
-					if (previousFrame.getRoll2() == Roll.SPARE) {
-						if (lastToPreviousFrame != null) {
-							previousFrame.setScore(lastToPreviousFrame.getScore() + 20);
-						} else {
-							previousFrame.setScore(20);
-						}
-						// if first roll is a strike, and last two were also strikes,
-						// update last to previous frame's score.s
-					} else if (previousFrame.getRoll1() == Roll.STRIKE) {
-						if (lastToPreviousFrame != null && lastToPreviousFrame.getRoll1() == Roll.STRIKE) {
-							if (secondLastToPreviousFrame != null) {
-								lastToPreviousFrame.setScore(secondLastToPreviousFrame.getScore() + 30);
-							} else {
-								lastToPreviousFrame.setScore(30);
-							}
-						}
-					}
-				}
-			}
+			whenRollOneIsStrike(roll1, 
+					previousFrame, 
+					lastToPreviousFrame, 
+					secondLastToPreviousFrame);
 			
 			Roll roll2 = currentFrame.getRoll2();
-			if (roll2 != Roll.EMPTY) {
-				// check if previous frame had a strike. If  yes, update previous frame score.
-				if (previousFrame != null) {
-					if (previousFrame.getRoll1() == Roll.STRIKE) {
-						int roll2Score = roll2.getScore();
-						// if roll2 is a spare, we can't use 99 but calculate the real value using roll1
-						if (roll2 ==  Roll.SPARE) {
-							roll2Score = 10 - roll1.getScore();
-						}
-						if (lastToPreviousFrame != null) {
-							previousFrame.setScore(lastToPreviousFrame.getScore() + 10 + roll1.getScore() + roll2Score);
-						} else {
-							previousFrame.setScore(10 + roll1.getScore() + roll2Score);
-						}
-					}
-				}
-			}
+
+			whenRollTwoIsNotEmpty(roll1, roll2, 
+					previousFrame, 
+					lastToPreviousFrame, 
+					secondLastToPreviousFrame);
 			
-			// When player's frame does not have a strike or a spare, update frame's score immediately.
-			if (roll1 != Roll.STRIKE && roll2 != Roll.SPARE) {
-				int currentFrameScore = roll1.getScore() + roll2.getScore();
-				if (currentFrameIndex == 1) {
-					currentFrame.setScore(currentFrameScore);
-				} else {
-					previousFrame = currentPlayer.getFrame(previousFrameNumber);
-					currentFrame.setScore(previousFrame.getScore() + currentFrameScore);
-				}
-				currentFrame.setScoreFinal(true);
-			}
+			whenRollOneIsNotStrikeAndRollTwoIsNotSpare(roll1, roll2,
+					currentFrameIndex,
+					currentFrame,
+					previousFrame,
+					previousFrameNumber,
+					currentPlayer);
 			
-			// 10th is special because of the third potential roll so need extra care.
-			if (currentFrameIndex == 10) {
-				Roll roll3 = currentFrame.getRoll3();
-				// best case scenario in the 10th frame
-				if (roll1 == Roll.STRIKE && roll2 == Roll.STRIKE && roll3 == Roll.STRIKE) {
-					currentFrame.setScore(previousFrame.getScore() + 30);
-				} else if (roll1 == Roll.STRIKE && roll2 != Roll.STRIKE) {
-					currentFrame.setScore(previousFrame.getScore() + 10 + roll2.getScore());
-				} else if (roll1 != Roll.STRIKE && roll2 == Roll.SPARE) {
-					int roll2Score = roll2.getScore();
-					// if roll2 is a spare, we can't use 99 but calculate the real value using roll1
-					if (roll2 ==  Roll.SPARE) {
-						roll2Score = 10 - roll1.getScore();
-					}					
-					currentFrame.setScore(previousFrame.getScore() +  roll1.getScore() + roll2Score + roll3.getScore());
-				}
-			}
+			whenFrameIsTen(roll1, roll2,
+					currentFrameIndex, 
+					currentFrame,
+					previousFrame);
 			
 			currentPlayer.setFrame(currentFrameNumber, currentFrame);
 			//System.out.println(currentPlayer);
@@ -145,6 +73,129 @@ public class BowlingApplication {
 		
 		
 		System.out.println(currentPlayer);
+	}
+	
+	private static void whenRollOneIsNotStrike(Roll roll1, Frame previousFrame,
+			Frame lastToPreviousFrame,
+			Frame secondLastToPreviousFrame
+			) {
+		// if roll1 is not a strike, check previous frame's second roll and
+		// if it's a spare, set last frame's score.
+		if (roll1 != Roll.STRIKE) {
+			if (previousFrame != null) {
+				// if roll1 is not a strike, check previous frame's second roll and
+				// if it's a spare, set last frame's score.					
+				if (previousFrame.getRoll2() == Roll.SPARE) {
+					if (lastToPreviousFrame != null) {
+						previousFrame.setScore(lastToPreviousFrame.getScore() + 10 + roll1.getScore());
+					} else {
+						previousFrame.setScore(10 + roll1.getScore());
+					}
+				// if roll1 is not a strike, and previous frame's first roll is a strike,
+				// and last to previous frame's first roll is also a strike then 
+				// update last to previous frame's score.
+				} else if (previousFrame.getRoll1()  == Roll.STRIKE) {
+					if (lastToPreviousFrame != null && lastToPreviousFrame.getRoll1() == Roll.STRIKE) {
+						if (secondLastToPreviousFrame != null) {
+							lastToPreviousFrame.setScore(secondLastToPreviousFrame.getScore() + 20 + roll1.getScore()); 
+						} else {
+							lastToPreviousFrame.setScore(20 + roll1.getScore());
+						}
+					}
+				}
+			}
+		}		
+	}
+	
+	private static void whenRollOneIsStrike(Roll roll1, Frame previousFrame,
+			Frame lastToPreviousFrame,
+			Frame secondLastToPreviousFrame) {
+		if (roll1 == Roll.STRIKE) {
+			if (previousFrame != null) {
+				// if first roll is a strike, and previous frame's second roll was a spare
+				// update previous frame's score.
+				if (previousFrame.getRoll2() == Roll.SPARE) {
+					if (lastToPreviousFrame != null) {
+						previousFrame.setScore(lastToPreviousFrame.getScore() + 20);
+					} else {
+						previousFrame.setScore(20);
+					}
+					// if first roll is a strike, and last two were also strikes,
+					// update last to previous frame's score.s
+				} else if (previousFrame.getRoll1() == Roll.STRIKE) {
+					if (lastToPreviousFrame != null && lastToPreviousFrame.getRoll1() == Roll.STRIKE) {
+						if (secondLastToPreviousFrame != null) {
+							lastToPreviousFrame.setScore(secondLastToPreviousFrame.getScore() + 30);
+						} else {
+							lastToPreviousFrame.setScore(30);
+						}
+					}
+				}
+			}
+		}		
+	}
+	
+	private static void whenRollTwoIsNotEmpty(Roll roll1, Roll roll2, Frame previousFrame,
+			Frame lastToPreviousFrame,
+			Frame secondLastToPreviousFrame) {
+		if (roll2 != Roll.EMPTY) {
+			// check if previous frame had a strike. If  yes, update previous frame score.
+			if (previousFrame != null) {
+				if (previousFrame.getRoll1() == Roll.STRIKE) {
+					int roll2Score = roll2.getScore();
+					// if roll2 is a spare, we can't use 99 but calculate the real value using roll1
+					if (roll2 ==  Roll.SPARE) {
+						roll2Score = 10 - roll1.getScore();
+					}
+					if (lastToPreviousFrame != null) {
+						previousFrame.setScore(lastToPreviousFrame.getScore() + 10 + roll1.getScore() + roll2Score);
+					} else {
+						previousFrame.setScore(10 + roll1.getScore() + roll2Score);
+					}
+				}
+			}
+		}		
+	}
+	
+	private static void whenRollOneIsNotStrikeAndRollTwoIsNotSpare(Roll roll1, Roll roll2,
+			int currentFrameIndex,
+			Frame currentFrame,
+			Frame previousFrame,
+			FrameNumber previousFrameNumber,
+			Player currentPlayer) {
+		// When player's frame does not have a strike or a spare, update frame's score immediately.
+		if (roll1 != Roll.STRIKE && roll2 != Roll.SPARE) {
+			int currentFrameScore = roll1.getScore() + roll2.getScore();
+			if (currentFrameIndex == 1) {
+				currentFrame.setScore(currentFrameScore);
+			} else {
+				previousFrame = currentPlayer.getFrame(previousFrameNumber);
+				currentFrame.setScore(previousFrame.getScore() + currentFrameScore);
+			}
+		}		
+	}
+	
+	private static void whenFrameIsTen(Roll roll1, Roll roll2,
+			int currentFrameIndex, 
+			Frame currentFrame,
+			Frame previousFrame) {
+		// 10th is special because of the third potential roll so need extra care.
+		if (currentFrameIndex == 10) {
+			Roll roll3 = currentFrame.getRoll3();
+			// best case scenario in the 10th frame
+			if (roll1 == Roll.STRIKE && roll2 == Roll.STRIKE && roll3 == Roll.STRIKE) {
+				currentFrame.setScore(previousFrame.getScore() + 30);
+			} else if (roll1 == Roll.STRIKE && roll2 != Roll.STRIKE) {
+				currentFrame.setScore(previousFrame.getScore() + 10 + roll2.getScore());
+			} else if (roll1 != Roll.STRIKE && roll2 == Roll.SPARE) {
+				int roll2Score = roll2.getScore();
+				// if roll2 is a spare, we can't use 99 but calculate the real value using roll1
+				if (roll2 ==  Roll.SPARE) {
+					roll2Score = 10 - roll1.getScore();
+				}					
+				currentFrame.setScore(previousFrame.getScore() +  roll1.getScore() + roll2Score + roll3.getScore());
+			}
+		}		
 	}
 	
 	private static void startPlaying(Player[] players) {
@@ -185,7 +236,6 @@ public class BowlingApplication {
 						} else {
 							previousFrame.setScore(10 + rollInt1);
 						}
-						previousFrame.setScoreFinal(true);
 					}
 				}
 				
@@ -207,7 +257,6 @@ public class BowlingApplication {
 						previousFrame = currentPlayer.getFrame(previousFrameNumber);
 						currentFrame.setScore(previousFrame.getScore() + currentFrameScore);
 					}
-					currentFrame.setScoreFinal(true);
 				}
 				currentPlayer.setFrame(currentFrameNumber, currentFrame);
 				System.out.println("Player:"+ currentPlayerIndex + "; Frame:" + currentFrame);
