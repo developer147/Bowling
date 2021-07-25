@@ -6,6 +6,7 @@ public class Frame {
 	private Roll roll2;
 	private Roll roll3;
 	private int score = 0;
+	//TODO: unnecessary?
 	private boolean isScoreFinal = false;
 	
 	public Frame(FrameNumber frameNumber, Roll roll1, Roll roll2) {
