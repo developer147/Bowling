@@ -12,7 +12,7 @@ public class BowlingApplication {
 		//SpringApplication.run(BowlingApplication.class, args);
 		System.out.println("Hello Brighthealth!");
 		
-		Player player = getPlayerTest3();
+		Player player = getPlayerTest2();
 		
 		startPlay(player);
 		
@@ -68,13 +68,23 @@ public class BowlingApplication {
 			
 			if (roll1 == Roll.STRIKE) {
 				if (previousFrame != null) {
-					// if first roll is a strike, and previous frame's second roll is a spare
+					// if first roll is a strike, and previous frame's second roll was a spare
 					// update previous frame's score.
 					if (previousFrame.getRoll2() == Roll.SPARE) {
 						if (lastToPreviousFrame != null) {
 							previousFrame.setScore(lastToPreviousFrame.getScore() + 20);
 						} else {
 							previousFrame.setScore(20);
+						}
+						// if first roll is a strike, and last two were also strikes,
+						// update last to previous frame's score.s
+					} else if (previousFrame.getRoll1() == Roll.STRIKE) {
+						if (lastToPreviousFrame != null && lastToPreviousFrame.getRoll1() == Roll.STRIKE) {
+							if (secondLastToPreviousFrame != null) {
+								lastToPreviousFrame.setScore(secondLastToPreviousFrame.getScore() + 30);
+							} else {
+								lastToPreviousFrame.setScore(30);
+							}
 						}
 					}
 				}
