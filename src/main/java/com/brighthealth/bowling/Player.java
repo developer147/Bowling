@@ -1,5 +1,7 @@
 package com.brighthealth.bowling;
 
+import java.util.Arrays;
+
 public class Player {
 	private int playerId;
 	private Frame[] frames;
@@ -20,4 +22,9 @@ public class Player {
 	public Frame getFrame(FrameNumber frameNumber) {
 		return frames[frameNumber.getValue()-1];
 	}
+	
+	@Override
+	public String toString() {
+		return "Player [playerId=" + playerId + ", frames=" + Arrays.toString(frames) + "]";
+	}	
 }
