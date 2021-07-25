@@ -12,7 +12,7 @@ public class BowlingApplication {
 		//SpringApplication.run(BowlingApplication.class, args);
 		System.out.println("Hello Brighthealth!");
 		
-		Player player = getPlayerTest2();
+		Player player = getPlayerTest4();
 		
 		startPlay(player);
 		
@@ -423,7 +423,78 @@ public class BowlingApplication {
 		//System.out.println(player);
 
 		return player;
+	}
+	
+	private static Player getPlayerTest4() {
+		Player player = new  Player(0);
+		
+		FrameNumber frameNumber = FrameNumber.getFrameNumber(1);
+		Frame frame1  = new Frame(frameNumber,
+				Roll.getRoll(0),
+				Roll.getRoll(0));
+		player.setFrame(frameNumber, frame1);
+		
+		frameNumber = FrameNumber.getFrameNumber(2);
+		Frame frame2  = new Frame(frameNumber,
+				Roll.getRoll(0),
+				Roll.getRoll(0));
+		player.setFrame(frameNumber, frame2);
+		
+		frameNumber = FrameNumber.getFrameNumber(3);
+		Frame frame3  = new Frame(frameNumber,
+				Roll.getRoll(0),
+				Roll.getRoll(0));
+		player.setFrame(frameNumber, frame3);	
+		
+		frameNumber = FrameNumber.getFrameNumber(4);
+		Frame frame4  = new Frame(frameNumber,
+				Roll.getRoll(0),
+				Roll.getRoll(0));
+		player.setFrame(frameNumber, frame4);		
+		
+		frameNumber = FrameNumber.getFrameNumber(5);
+		Frame frame5  = new Frame(frameNumber,
+				Roll.getRoll(0),
+				Roll.getRoll(0));
+		player.setFrame(frameNumber, frame5);	
+		
+		frameNumber = FrameNumber.getFrameNumber(6);
+		Frame frame6  = new Frame(frameNumber,
+				Roll.getRoll(0),
+				Roll.getRoll(0));
+		player.setFrame(frameNumber, frame6);	
+		
+		frameNumber = FrameNumber.getFrameNumber(7);
+		Frame frame7  = new Frame(frameNumber,
+				Roll.getRoll(0),
+				Roll.getRoll(0));
+		player.setFrame(frameNumber, frame7);	
+		
+		frameNumber = FrameNumber.getFrameNumber(8);
+		Frame frame8  = new Frame(frameNumber,
+				Roll.getRoll(0),
+				Roll.getRoll(0));
+		player.setFrame(frameNumber, frame8);
+		
+		frameNumber = FrameNumber.getFrameNumber(9);
+		Frame frame9  = new Frame(frameNumber,
+				Roll.getRoll(0),
+				Roll.getRoll(0));
+		player.setFrame(frameNumber, frame9);
+		
+		frameNumber = FrameNumber.getFrameNumber(10);
+		Frame frame10  = new Frame(frameNumber,
+				Roll.getRoll(0),
+				Roll.getRoll(0));
+		//frame10.setRoll3(Roll.getRoll(10));
+		player.setFrame(frameNumber, frame10);		
+		
+		
+		//System.out.println(player);
+
+		return player;
 	}	
+
 
 	private static  int getTotalPlayers() {
 		int totalPlayers = 0;
